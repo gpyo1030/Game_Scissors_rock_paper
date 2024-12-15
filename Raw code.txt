@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Rock-Paper-Scissors Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            margin: 20px auto;
+            display: block;
+            max-width: 90%;
+            height: auto;
+            box-shadow: none;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            font-size: 16px;
+            margin: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            flex: 1 1 calc(33% - 20px);
+            max-width: 120px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin: 20px auto;
+            font-size: 20px;
+            color: #333;
+        }
+
+        #instruction {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>가위, 바위, 보 게임</h1>
+    <canvas id="gameCanvas" width="400" height="300"></canvas>
+    <div id="result"></div>
+    <div class="controls">
+        <button onclick="playGame('rock')">바위</button>
+        <button onclick="playGame('paper')">보</button>
+        <button onclick="playGame('scissors')">가위</button>
+    </div>
+    <div id="instruction">하나의 버튼을 선택하세요. ^^.</div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const choices = ['rock', 'paper', 'scissors'];
+        const images = {
+            rock: 'images/Rock_1.png',
+            paper: 'images/Paper_1.png',
+            scissors: 'images/Scissors_1.png',
+            donkey: 'images/donkey_1_1.png', // Donkey character image
+            player: 'images/Player_1.png' // Player character image
+        };
+
+        const donkeyImage = new Image();
+        const playerCharacterImage = new Image();
+
+        donkeyImage.src = images.donkey; // Load donkey character image
+        playerCharacterImage.src = images.player; // Load player character image
+
+        // Function to draw initial characters
+        function drawInitialCharacters() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(playerCharacterImage, -30, 10, 200, 300); // Draw Player character on the left
+            ctx.drawImage(donkeyImage, canvas.width - 180, 0, 200, 300); // Draw Donkey character on the right
+        }
+
+        // Ensure both images are loaded before drawing
+        donkeyImage.onload = () => {
+            playerCharacterImage.onload = () => {
+                drawInitialCharacters();
+            };
+        };
+
+        donkeyImage.onerror = () => {
+            console.error("Failed to load Donkey character image.");
+        };
+
+        playerCharacterImage.onerror = () => {
+            console.error("Failed to load Player character image.");
+        };
+
+        function drawCanvas(playerChoice, donkeyChoice) {
+            console.log("Drawing canvas with player choice:", playerChoice, "and Donkey choice:", donkeyChoice);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Player and Donkey characters
+            ctx.drawImage(playerCharacterImage, 40, 10, 100, 150); // Player character on the left
+            ctx.drawImage(donkeyImage, canvas.width - 160, 0, 120, 150); // Donkey character on the right
+
+            // Draw Player's choice below their character
+            const playerImage = new Image();
+            playerImage.src = images[playerChoice];
+            playerImage.onload = () => {
+                console.log("Player image loaded for choice:", playerChoice);
+                ctx.drawImage(playerImage, 50, canvas.height - 150, 100, 100);
+            };
+            playerImage.onerror = () => {
+                console.error("Failed to load player image for choice:", playerChoice);
+            };
+
+            // Draw Donkey's choice below their character
+            const donkeyChoiceImage = new Image();
+            donkeyChoiceImage.src = images[donkeyChoice];
+            donkeyChoiceImage.onload = () => {
+                console.log("Donkey image loaded for choice:", donkeyChoice);
+                ctx.drawImage(donkeyChoiceImage, canvas.width - 150, canvas.height - 150, 100, 100); // Adjusted height
+            };
+            donkeyChoiceImage.onerror = () => {
+                console.error("Failed to load Donkey image for choice:", donkeyChoice);
+            };
+        }
+
+        function getDonkeyChoice() {
+            const randomIndex = Math.floor(Math.random() * choices.length);
+            const donkeyChoice = choices[randomIndex];
+            console.log("Donkey choice generated:", donkeyChoice);
+            return donkeyChoice;
+        }
+
+        function determineWinner(player, donkey) {
+            console.log("Determining winner for player:", player, "and Donkey:", donkey);
+            if (player === donkey) return "비겼네요. 다시 도전~";
+            if (
+                (player === 'rock' && donkey === 'scissors') ||
+                (player === 'scissors' && donkey === 'paper') ||
+                (player === 'paper' && donkey === 'rock')
+            ) {
+                return '우와~ 당신이 이겼어요!';
+            } else {
+                return '우웅~ 당나귀가 이겼어요!';
+            }
+        }
+
+        function playGame(playerChoice) {
+            console.log("Player selected:", playerChoice);
+            const donkeyChoice = getDonkeyChoice();
+            const result = determineWinner(playerChoice, donkeyChoice);
+            console.log("Game result:", result);
+            document.getElementById('result').textContent = result;
+            drawCanvas(playerChoice, donkeyChoice);
+        }
+
+        // Draw initial characters on page load
+        window.onload = () => {
+            drawInitialCharacters();
+        };
+    </script>
+</body>
+</html>
